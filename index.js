@@ -20,7 +20,7 @@ const server = http.createServer( (req,res) =>{
         
         case req.url ==="/script.js" && req.method === "GET":
             fs.readFile("./public/script.js", (err, script) =>{
-                res.setHeader('Content-Type', 'text/javascript');
+                res.setHeader('Content-Type', 'application/javascript');
                 res.writeHead(200);
                 res.end(script);
             })
@@ -31,6 +31,14 @@ const server = http.createServer( (req,res) =>{
                 res.setHeader("Content-Type", "image/ico")
                 res.writeHead(200);
                 res.end(icon);
+            })
+        break;
+
+        case req.url==="/colors" && req.method==="GET":
+            fs.readFile("./datas/colors.json", (err,data) => {
+                res.setHeader('Content-Type', 'application/json');
+                res.writeHead(200);
+                res.end(data);
             })
         break;
 
