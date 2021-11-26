@@ -43,6 +43,22 @@ const server = http.createServer((req, res) => {
             })
             break;
 
+        case req.url === '/lista' && req.method === "GET":
+            let listaHTML='<ul>';
+            fs.readFile('./datas/colors.json', (err,data) =>{
+                res.setHeader('Content-Type', 'text/html');
+                res.writeHead(200);
+                
+                const szinek = JSON.parse(data);
+
+                for( elem of szinek){
+                    listaHTML += `<li>${elem.code} ${elem.name}</li>`;
+                }
+                listaHTML += '</ul>';
+                res.end(listaHTML);
+            })    
+        break;
+
         case req.url === '/colors' && req.method === 'POST':
             let body = '';
             req.on('data', (chunk) => {
@@ -54,8 +70,23 @@ const server = http.createServer((req, res) => {
 
                 /*
                 !!!
+                sanitaze
+                validate
                 */
+               //Sanitize
+               newColor.code = sanitize( newColor.code );
+               newColor.name = sanitize( newColor.name );
+
+               //Validate
+
                 //console.log(newColor);
+                if( ! validateCode(newColor.code)){
+                    //res.setHeader('Content-Type', 'text/html');
+                    //res.writeHead(404);
+                    //res.end("Hiba van!");
+                    return;
+                }
+                    
 
                 fs.readFile("./datas/colors.json", (err, data) => {
                     const eddigiSzinek = JSON.parse(data);
@@ -79,3 +110,23 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(port);
+
+function sanitize(string) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#x27;',
+        "/": '&#x2F;',
+    };
+    const reg = /[&<>"'/]/ig;
+    return string.replace(reg, (match)=>(map[match]));
+  }
+
+  function validateCode(code){
+      if( code.length != 7 )
+        return false;
+      //regex bonyolultabb code: '#[a-fA-F0-9]{6}'
+        return true;
+  }

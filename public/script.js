@@ -38,7 +38,8 @@ document.getElementById('create-color').onsubmit = async function(event) {
 
   if(res.ok){
     listAndRenderColors();
-  } else{
+  } else{//
+    
     alert("Hiba történt");
   }
 
