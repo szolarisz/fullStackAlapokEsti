@@ -2,48 +2,74 @@ const http = require('http');
 const fs = require('fs');
 const port = 5555;
 
-const server = http.createServer( (req,res) =>{
+const server = http.createServer((req, res) => {
+    /*
     console.log("Új kérés érkezett:");
     console.log(req.url);
     console.log(req.method);
-
+*/
     //router
-    switch( true){
+    switch (true) {
 
-        case req.url ==="/" && req.method==="GET":
-            fs.readFile("./views/index.html", (err, file) =>{
+        case req.url === "/" && req.method === "GET":
+            fs.readFile("./views/index.html", (err, file) => {
                 res.setHeader('Content-Type', 'text/html');
                 res.writeHead(200);
                 res.end(file);
             })
-        break;
-        
-        case req.url ==="/script.js" && req.method === "GET":
-            fs.readFile("./public/script.js", (err, script) =>{
+            break;
+
+        case req.url === "/script.js" && req.method === "GET":
+            fs.readFile("./public/script.js", (err, script) => {
                 res.setHeader('Content-Type', 'application/javascript');
                 res.writeHead(200);
                 res.end(script);
             })
-        break;
+            break;
 
-        case req.url ==="/favicon.ico" && req.method==="GET":
-            fs.readFile("./views/favicon.ico", (err,icon) => {
+        case req.url === "/favicon.ico" && req.method === "GET":
+            fs.readFile("./views/favicon.ico", (err, icon) => {
                 res.setHeader("Content-Type", "image/ico")
                 res.writeHead(200);
                 res.end(icon);
             })
-        break;
+            break;
 
-        case req.url==="/colors" && req.method==="GET":
-            fs.readFile("./datas/colors.json", (err,data) => {
+        case req.url === "/colors" && req.method === "GET":
+            fs.readFile("./datas/colors.json", (err, data) => {
                 res.setHeader('Content-Type', 'application/json');
                 res.writeHead(200);
                 res.end(data);
             })
-        break;
+            break;
+
+        case req.url === '/colors' && req.method === 'POST':
+            let body = '';
+            req.on('data', (chunk) => {
+                body += chunk.toString();
+            });
+
+            req.on('end', () => {
+                const newColor = JSON.parse(body);
+
+                /*
+                !!!
+                */
+                //console.log(newColor);
+
+                fs.readFile("./datas/colors.json", (err, data) => {
+                    const eddigiSzinek = JSON.parse(data);
+                    eddigiSzinek.push(newColor);
+                    fs.writeFile("./datas/colors.json", JSON.stringify(eddigiSzinek), () => {
+                        res.end(JSON.stringify(newColor));
+                    });
+                });
+            });
+
+            break;
 
         default:
-            fs.readFile("./views/error.html", (err, file) =>{
+            fs.readFile("./views/error.html", (err, file) => {
                 res.setHeader('Content-Type', 'text/html');
                 res.writeHead(404);
                 res.end(file);
